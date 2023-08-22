@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package helloworld;
+
+option go_package = "./api/helloworld";
+
+message Message {
+    string name = 1;
+    string greeting = 2;
+    int32 count = 3;
+}
+
+service Greeter {
+    rpc SayHello(Message) returns (Message);
+}
