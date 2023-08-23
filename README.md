@@ -25,23 +25,29 @@ git clone https://github.com/sigsegv1989/hello-world-grpc.git
 cd hello-world-grpc
 ```
 
-3. Start the server:
+3. Build the client, server binary and docker images:
 ```
-go run server/server.go
-```
-
-4. In a separate terminal window, run the client:
-```
-go run client/client.go
+make docker-build
 ```
 
-5. You should see the interaction between the client and server, exchanging personalized greetings and messages.
+4. Start the server:
+```
+make docker-run-server
+```
+
+5. Run the client:
+```
+make docker-run-client
+```
+
+6. You should see the interaction between the client and server, exchanging personalized greetings and messages.
 
 ## Project Structure
 
 - `api/hello.proto`: Protocol Buffers (.proto) file defining the message and service.
 - `server/server.go`: Server implementation that receives and responds to gRPC requests.
 - `client/client.go`: Client implementation that sends gRPC requests to the server.
+- `certs/`: TLS/SSL certificates to enable the mutual authentication between gRPC client and server.
 
 ## License
 
