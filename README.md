@@ -27,21 +27,21 @@ cd hello-world-grpc
 
 3. Start the server:
 ```
-go run server.go
+go run server/server.go
 ```
 
 4. In a separate terminal window, run the client:
 ```
-go run client.go
+go run client/client.go
 ```
 
 5. You should see the interaction between the client and server, exchanging personalized greetings and messages.
 
 ## Project Structure
 
-- `hello.proto`: Protocol Buffers (.proto) file defining the message and service.
-- `server.go`: Server implementation that receives and responds to gRPC requests.
-- `client.go`: Client implementation that sends gRPC requests to the server.
+- `api/hello.proto`: Protocol Buffers (.proto) file defining the message and service.
+- `server/server.go`: Server implementation that receives and responds to gRPC requests.
+- `client/client.go`: Client implementation that sends gRPC requests to the server.
 
 ## License
 

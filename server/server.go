@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 
-	pb "github.com/sigsegv1989/hello-world-grpc/api" // Import the shared package
+	pb "github.com/sigsegv1989/hello-world-grpc/api/helloworld"
 	"google.golang.org/grpc"
 )
 
