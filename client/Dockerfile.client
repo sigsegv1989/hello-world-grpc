@@ -1,0 +1,16 @@
+FROM scratch
+
+# Copy the client binary to the container
+COPY bin/client /client
+
+# Copy the CA certificate and client certificates/keys
+COPY certs/ca/ca.crt /certs/ca/ca.crt
+COPY certs/client/client.crt /certs/client/client.crt
+COPY certs/client/client.key /certs/client/client.key
+
+# Set the user to run the container as
+USER 1001:1001
+
+# Command to run the client binary
+CMD ["/client", "--client-cert=/certs/client/client.crt", "--client-key=/certs/client/client.key", "--server-ca=/certs/ca/ca.crt"]
+
