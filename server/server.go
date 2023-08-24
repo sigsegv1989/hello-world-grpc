@@ -23,17 +23,30 @@ type server struct {
 	pb.UnimplementedGreeterServer
 }
 
-func (s *server) SayHello(ctx context.Context, in *pb.Message) (*pb.Message, error) {
-	log.Printf("Received: %v", in)
-	if count, ok := countMap[in.Name]; ok {
-		countMap[in.Name] = count + 1
-	} else {
-		countMap[in.Name] = 1
+func (s *server) SayHello(ctx context.Context, req *pb.BatchRequest) (*pb.BatchResponse, error) {
+	log.Printf("Received: %v", req)
+	var responses []*pb.Message
+
+	for _, msg := range req.Requests {
+		if count, ok := countMap[msg.Name]; ok {
+			countMap[msg.Name] = count + 1
+		} else {
+			countMap[msg.Name] = 1
+		}
+
+		response := &pb.Message{
+			Name:     msg.Name,
+			Greeting: "Hello, " + msg.Name,
+			Count:    int32(countMap[msg.Name]),
+		}
+		responses = append(responses, response)
 	}
-	return &pb.Message{
-		Greeting: "Hello, " + in.Name,
-		Count:    int32(countMap[in.Name]),
-	}, nil
+
+	batchResponse := &pb.BatchResponse{
+		Responses: responses,
+	}
+
+	return batchResponse, nil
 }
 
 func main() {

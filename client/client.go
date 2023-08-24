@@ -7,6 +7,7 @@ import (
 	"flag"
 	"io/ioutil"
 	"log"
+	"strings"
 
 	pb "github.com/sigsegv1989/hello-world-grpc/api/helloworld"
 	"google.golang.org/grpc"
@@ -19,7 +20,7 @@ func main() {
 	clientKeyPath := flag.String("client-key", "certs/client/client.key", "Path to client private key file (PEM format)")
 	serverCACertPath := flag.String("server-ca", "certs/ca/ca.crt", "Path to server CA certificate file (PEM format)")
 	targetFlag := flag.String("target", "localhost:50051", "Address of the gRPC server")
-	nameFlag := flag.String("name", "sigsegv1989", "Name to send the greeting message")
+	namesFlag := flag.String("names", "SIGINT,SIGKILL,SIGQUIT,SIGSEGV,SIGTERM", "Comma-separated list of names")
 
 	flag.Parse()
 
@@ -52,12 +53,24 @@ func main() {
 
 	c := pb.NewGreeterClient(conn)
 
-	message := &pb.Message{
-		Name: *nameFlag,
+	names := strings.Split(*namesFlag, ",")
+
+	// Create a batch of Message objects
+	var messages []*pb.Message
+	for _, name := range names {
+		messages = append(messages, &pb.Message{
+			Name: name,
+		})
 	}
-	response, err := c.SayHello(context.Background(), message)
+
+	request := &pb.BatchRequest{
+		Requests: messages,
+	}
+
+	response, err := c.SayHello(context.Background(), request)
 	if err != nil {
 		log.Fatalf("Failed to call SayHello: %v", err)
 	}
+
 	log.Printf("Response: %v", response)
 }
