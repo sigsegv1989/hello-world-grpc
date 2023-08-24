@@ -14,15 +14,24 @@ import (
 	"google.golang.org/grpc/credentials"
 )
 
+var (
+	countMap map[string]int32 = make(map[string]int32)
+)
+
 type server struct {
 	pb.UnimplementedGreeterServer
 }
 
 func (s *server) SayHello(ctx context.Context, in *pb.Message) (*pb.Message, error) {
 	log.Printf("Received: %v", in)
+	if count, ok := countMap[in.Name]; ok {
+		countMap[in.Name] = count + 1
+	} else {
+		countMap[in.Name] = 1
+	}
 	return &pb.Message{
 		Greeting: "Hello, " + in.Name,
-		Count:    in.Count + 1,
+		Count:    int32(countMap[in.Name]),
 	}, nil
 }
 

@@ -49,9 +49,7 @@ func main() {
 	c := pb.NewGreeterClient(conn)
 
 	message := &pb.Message{
-		Name:     "sigsegv1989",
-		Greeting: "Hi there!",
-		Count:    0,
+		Name: "sigsegv1989",
 	}
 	response, err := c.SayHello(context.Background(), message)
 	if err != nil {
