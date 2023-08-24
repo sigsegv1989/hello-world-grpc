@@ -7,37 +7,38 @@ This repository contains a simple example of a client-server application using g
 Before running the code in this repository, make sure you have the following prerequisites installed:
 
 - Go (golang): You can download and install Go from the official website: https://golang.org/dl/
-- Protocol Buffers (Protobuf) and gRPC Go packages: You can install them using the following command:
+- Protocol Buffers (Protobuf): You can download and install from the official GitHub repository: [protobuf/protobuf](https://github.com/protocolbuffers/protobuf/releases)
+- gRPC Go packages: You can install them using the following command:
 ```
-go get google.golang.org/protobuf/cmd/protoc-gen-go \
-       google.golang.org/grpc/cmd/protoc-gen-go-grpc
+   go install google.golang.org/protobuf/cmd/protoc-gen-go
+   go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
 ```
 
 ## How to Run
 
 1. Clone this repository to your local machine:
 ```
-git clone https://github.com/sigsegv1989/hello-world-grpc.git
+   git clone https://github.com/sigsegv1989/hello-world-grpc.git
 ```
 
 2. Navigate to the repository directory:
 ```
-cd hello-world-grpc
+   cd hello-world-grpc
 ```
 
 3. Build the client, server binary and docker images:
 ```
-make docker-build
+   make docker-build
 ```
 
 4. Start the server:
 ```
-make docker-run-server
+   make docker-run-server
 ```
 
 5. Run the client:
 ```
-make docker-run-client
+   make docker-run-client
 ```
 
 6. You should see the interaction between the client and server, exchanging personalized greetings and messages.

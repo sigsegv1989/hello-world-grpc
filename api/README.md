@@ -20,7 +20,7 @@ To generate the Go code files from the `api/hello.proto` Protobuf file, follow t
 ```
 3. Run the protoc command from the main directory with the Go plugins to generate the code files. Use the following command:
 ```
-PATH="${PATH}:${HOME}/go/bin" protoc --go_out=. --go-grpc_out=. ./api/hello.proto
+   PATH="${PATH}:${HOME}/go/bin" protoc --go_out=. --go-grpc_out=. ./api/hello.proto
 ```
 
 The generated hello.pb.go file contains the message definitions, and the hello_grpc.pb.go file contains the service definitions needed for gRPC communication.
