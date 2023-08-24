@@ -18,6 +18,9 @@ func main() {
 	clientCertPath := flag.String("client-cert", "certs/client/client.crt", "Path to client certificate file (PEM format)")
 	clientKeyPath := flag.String("client-key", "certs/client/client.key", "Path to client private key file (PEM format)")
 	serverCACertPath := flag.String("server-ca", "certs/ca/ca.crt", "Path to server CA certificate file (PEM format)")
+	targetFlag := flag.String("target", "localhost:50051", "Address of the gRPC server")
+	nameFlag := flag.String("name", "sigsegv1989", "Name to send the greeting message")
+
 	flag.Parse()
 
 	// Load client certificate and key
@@ -41,15 +44,16 @@ func main() {
 	})
 
 	// Set up gRPC connection with the credentials
-	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(creds))
+	conn, err := grpc.Dial(*targetFlag, grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatalf("Failed to connect: %v", err)
 	}
 	defer conn.Close()
+
 	c := pb.NewGreeterClient(conn)
 
 	message := &pb.Message{
-		Name: "sigsegv1989",
+		Name: *nameFlag,
 	}
 	response, err := c.SayHello(context.Background(), message)
 	if err != nil {

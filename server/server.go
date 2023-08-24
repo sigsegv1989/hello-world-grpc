@@ -5,6 +5,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"flag"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
@@ -40,9 +41,14 @@ func main() {
 	serverCertPath := flag.String("server-cert", "certs/server/server.crt", "Path to server certificate file (PEM format)")
 	serverKeyPath := flag.String("server-key", "certs/server/server.key", "Path to server private key file (PEM format)")
 	clientCACertPath := flag.String("client-ca", "certs/ca/ca.crt", "Path to client CA certificate file (PEM format)")
+	networkFlag := flag.String("network", "tcp", "Network type (tcp or unix)")
+	addressFlag := flag.String("address", ":50051", "Address for the server to listen on")
+
+	// Parse command-line flags
 	flag.Parse()
 
-	lis, err := net.Listen("tcp", ":50051")
+	// Listen on the specified network and address
+	listener, err := net.Listen(*networkFlag, *addressFlag)
 	if err != nil {
 		log.Fatalf("Failed to listen: %v", err)
 	}
@@ -69,11 +75,13 @@ func main() {
 	})
 
 	// Set up gRPC server with the credentials
-	s := grpc.NewServer(grpc.Creds(creds))
+	grpcServer := grpc.NewServer(grpc.Creds(creds))
 
-	pb.RegisterGreeterServer(s, &server{})
-	log.Println("Server listening on :50051")
-	if err := s.Serve(lis); err != nil {
+	pb.RegisterGreeterServer(grpcServer, &server{})
+
+	fmt.Printf("Server listening on %s://%s\n", *networkFlag, *addressFlag)
+	// Start the gRPC server
+	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatalf("Failed to serve: %v", err)
 	}
 }
