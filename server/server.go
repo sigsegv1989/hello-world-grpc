@@ -5,14 +5,15 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
 
 	pb "github.com/sigsegv1989/hello-world-grpc/api/helloworld"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/status"
 )
 
 var (
@@ -24,10 +25,22 @@ type server struct {
 }
 
 func (s *server) SayHello(ctx context.Context, req *pb.BatchRequest) (*pb.BatchResponse, error) {
+	if len(req.Requests) == 0 {
+		log.Print("Request message is empty")
+		// Return InvalidArgument if no request messages are provided
+		return nil, status.Errorf(codes.InvalidArgument, "No request messages provided")
+	}
+
 	log.Printf("Received: %v", req)
 	var responses []*pb.Message
 
 	for _, msg := range req.Requests {
+		if len(msg.Name) == 0 {
+			log.Print("Request's name field is empty")
+			// Return InvalidArgument if no request's name are provided
+			return nil, status.Errorf(codes.InvalidArgument, "No request's name provided")
+		}
+
 		if count, ok := countMap[msg.Name]; ok {
 			countMap[msg.Name] = count + 1
 		} else {
@@ -92,7 +105,7 @@ func main() {
 
 	pb.RegisterGreeterServer(grpcServer, &server{})
 
-	fmt.Printf("Server listening on %s://%s\n", *networkFlag, *addressFlag)
+	log.Printf("Server listening on %s://%s\n", *networkFlag, *addressFlag)
 	// Start the gRPC server
 	if err := grpcServer.Serve(listener); err != nil {
 		log.Fatalf("Failed to serve: %v", err)

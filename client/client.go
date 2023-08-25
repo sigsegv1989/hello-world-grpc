@@ -13,7 +13,9 @@ import (
 	"github.com/cenkalti/backoff/v4"
 	pb "github.com/sigsegv1989/hello-world-grpc/api/helloworld"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/status"
 )
 
 func main() {
@@ -92,12 +94,33 @@ func main() {
 	var response *pb.BatchResponse
 	operation := func() error {
 		var err error
+		// Send the request and handle the response
 		response, err = c.SayHello(context.Background(), request)
-		return err
-	}
-	if err := backoff.Retry(operation, backOff); err != nil {
-		log.Fatalf("Max retries reached. Exiting... last error: %v", err)
+		if err != nil {
+			// Check if the error has a status code
+			if statusErr, ok := status.FromError(err); ok {
+				switch statusErr.Code() {
+				case codes.InvalidArgument:
+					// No retry on invalid argument.
+					log.Fatalf("Invalid argument for the request, not going to retry: %v", err)
+				case codes.Unavailable:
+					// Retry in case of server unavailable
+					return statusErr.Err()
+				}
+			}
+			return err
+		}
+
+		log.Print("Server responses:")
+		for _, resp := range response.Responses {
+			log.Printf("Name: %s, Greeting: %s, Count: %d\n", resp.Name, resp.Greeting, resp.Count)
+		}
+
+		return nil
 	}
 
-	log.Printf("Response: %v", response)
+	// Retry with exponential backoff
+	if err := backoff.Retry(operation, backOff); err != nil {
+		log.Fatalf("Max retries reached. Exiting... Last error: %v", err)
+	}
 }
