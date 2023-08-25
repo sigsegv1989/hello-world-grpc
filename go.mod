@@ -3,6 +3,7 @@ module github.com/sigsegv1989/hello-world-grpc
 go 1.18
 
 require (
+	github.com/cenkalti/backoff/v4 v4.2.1 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	golang.org/x/net v0.9.0 // indirect
 	golang.org/x/sys v0.7.0 // indirect

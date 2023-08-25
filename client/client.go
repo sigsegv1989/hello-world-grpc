@@ -8,7 +8,9 @@ import (
 	"io/ioutil"
 	"log"
 	"strings"
+	"time"
 
+	"github.com/cenkalti/backoff/v4"
 	pb "github.com/sigsegv1989/hello-world-grpc/api/helloworld"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -67,9 +69,34 @@ func main() {
 		Requests: messages,
 	}
 
-	response, err := c.SayHello(context.Background(), request)
-	if err != nil {
-		log.Fatalf("Failed to call SayHello: %v", err)
+	// The exponential backoff algorithm helps handle transient failures gracefully.
+	// It combines the benefits of randomized intervals (jitter) and exponential
+	// increase in intervals to avoid overloading the system during retries.
+	// The algorithm calculates the maximum time spent on retries while considering
+	// jitter and the exponential backoff sequence, ensuring resilience and efficiency.
+	// If all retries fail within the maximum elapsed time, the operation exits with an error.
+
+	// Set up exponential backoff algorithm for retries
+	backOff := backoff.NewExponentialBackOff()
+	backOff.InitialInterval = 1 * time.Second
+
+	// Configure jitter (randomized delay) to avoid synchronization
+	backOff.RandomizationFactor = 0.5
+
+	// Configure backoff multiplier for exponential increase in intervals
+	backOff.Multiplier = 2.0
+
+	// Retries until maximum elapsed time
+	backOff.MaxElapsedTime = 120 * time.Second
+
+	var response *pb.BatchResponse
+	operation := func() error {
+		var err error
+		response, err = c.SayHello(context.Background(), request)
+		return err
+	}
+	if err := backoff.Retry(operation, backOff); err != nil {
+		log.Fatalf("Max retries reached. Exiting... last error: %v", err)
 	}
 
 	log.Printf("Response: %v", response)
